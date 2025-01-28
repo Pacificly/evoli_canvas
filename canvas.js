@@ -174,13 +174,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ensure the appropriate sections are toggled
     document.getElementById('colorViewBtn').addEventListener('click', () => {
-        document.getElementById('colorPalette').classList.remove('hidden');
-        document.getElementById('ownerList').classList.add('hidden');
+        if (!pixelCanvas.displayColorGrid) {
+            document.getElementById('colorPalette').classList.add('hidden');
+        } else {
+            document.getElementById('colorPalette').classList.remove('hidden');
+        }
     });
 
     document.getElementById('ownerViewBtn').addEventListener('click', () => {
-        document.getElementById('colorPalette').classList.add('hidden');
-        document.getElementById('ownerList').classList.remove('hidden');
+        if (!pixelCanvas.displayOwnerGrid) {
+            document.getElementById('ownerList').classList.add('hidden');
+        } else {
+            document.getElementById('ownerList').classList.remove('hidden');
+        }
     });
 
     document.addEventListener('coloris:pick', event => {
