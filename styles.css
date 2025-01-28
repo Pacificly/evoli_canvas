@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap');
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.header {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-51%);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+    z-index: 10;
+}
+
+h1 {
+    font-family: 'Indie Flower', cursive;
+    color: #333;
+    font-size: 3rem;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.help-toggle {
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.help-section {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid #4CAF50;
+    border-radius: 10px;
+    padding: 15px;
+    max-width: 250px;
+    z-index: 10;
+}
+
+.canvas-and-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -45%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+}
+
+#pixelCanvas {
+    border: 2px solid #333;
+    background-color: white;
+}
+
+.sidebar {
+    position: absolute;
+    top: 50%;
+    left: 70%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.color-palette {
+    display: flex;
+    gap: 10px;
+    background-color: #4CAF50;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+
+.owner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.copy-section {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#copyBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0px;
+}
+
+#canvasCode {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.eevee-gif {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.canvas-container {
+    display: flex;
+    justify-content: center;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 100%;
+    height: 50px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+}

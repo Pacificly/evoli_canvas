@@ -1,0 +1,64 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evoli's Canvas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css"/>
+    <script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://cul.loult.family/images/pokemon/medium/133.gif" alt="Eevee" class="eevee-gif">
+            <h1>Evoli's Canvas</h1>
+        </div>
+        
+        <div class="main-content">
+            <div id="helpSection" class="help-section">
+                <h2>How to Use Evoli's Canvas</h2>
+                <p>• Click on squares to color them in Color View</p>
+                <p>• Switch between Color View and Owner View using buttons</p>
+                <p>• Copy canvas command by clicking the clipboard button</p>
+            </div>
+            
+            <div class="canvas-and-controls">
+                <div class="controls">
+                    <button id="colorViewBtn">Color View</button>
+                    <button id="ownerViewBtn">Owner View</button>
+                </div>
+                
+                <div class="canvas-container">
+                    <canvas id="pixelCanvas" width="400" height="400"></canvas>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div id="colorPalette" class="color-palette">
+                    <input id="colorisWidget" type="text" data-coloris></input>
+                </div>
+                
+                <div id="ownerList" class="owner-list hidden">
+                    <h3>Canvas Owners</h3>
+                    <ul>
+                        <li style="color: magenta;">Evoli Mignon</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copy-section">
+            <button id="copyBtn">📋</button>
+            <input type="text" id="canvasCode" readonly>
+            <div>0 L€</div>
+        </div>
+    </div>
+    <script>
+        Coloris({
+            alpha: false
+        });
+    </script>
+    <script src="canvas.js"></script>
+    <script src="copy.js"></script>
+</body>
+</html>
