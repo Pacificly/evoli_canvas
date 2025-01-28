@@ -38,16 +38,6 @@ h1 {
     z-index: 10;
 }
 
-.help-toggle {
-    position: absolute;
-    left: 50px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 10;
-}
-
 .help-section {
     position: absolute;
     top: 50%;

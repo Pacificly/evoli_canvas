@@ -23,7 +23,7 @@ class PixelCanvas {
                 this.ownerGrid = text.split('\n').map(row => row.split(','));
             });
         
-
+        this.displayColorGrid = true;
         this.displayOwnerGrid = false;
         this.selectedColor = '#FF0000';
 
@@ -40,9 +40,19 @@ class PixelCanvas {
 
             //update canvas code
             if (this.displayOwnerGrid) {
-                this.command.plots.push([y, x]);
+                if (this.command.action === "buy_plots" && (this.ownerGrid[y][x]==="0" || this.ownerGrid[y][x]==="-1")) {
+                    //if the plot was already in the list, remove it
+                    const index = this.command.plots.findIndex(plot => plot[0] === y && plot[1] === x);
+                    if (index > -1) {
+                        this.command.plots.splice(index, 1);
+                    } else {
+                        this.command.plots.push([y, x]);
+                    }
+                }
             } else {
-                this.command.plots.push([y, x, this.selectedColor]);
+                if (this.command.action === "color") {
+                    this.command.plots.push([y, x, this.selectedColor]);
+                }
             }
             this.canvasCode.value = JSON.stringify(this.command);
         });
@@ -66,27 +76,36 @@ class PixelCanvas {
 
         // Toggle grid display buttons
         document.getElementById('colorViewBtn').addEventListener('click', () => {
-            if (this.displayOwnerGrid) {
+            this.displayColorGrid = !this.displayColorGrid;
+            if (this.displayColorGrid) {
                 this.command = {"action":"color","plots":[]};
                 this.canvasCode.value = JSON.stringify(this.command);
-                this.displayOwnerGrid = false;
-                this.drawGrid();
             }
+            this.drawGrid();
         });
 
         document.getElementById('ownerViewBtn').addEventListener('click', () => {
-            if (!this.displayOwnerGrid) {
+            this.displayOwnerGrid = !this.displayOwnerGrid;
+            if (this.displayOwnerGrid) {
                 this.command = {"action":"buy_plots","plots":[]};
                 this.canvasCode.value = JSON.stringify(this.command);
-                this.displayOwnerGrid = true;
-                this.drawGrid();
             }
+            this.drawGrid();
         });
     }
 
     colorCell(x, y) {
         if (this.displayOwnerGrid) {
-            this.ownerGrid[y][x] = "-1";
+            switch (this.ownerGrid[y][x]) {
+                case "-1":
+                    this.ownerGrid[y][x] = "0";
+                    break;
+                case "0":
+                    this.ownerGrid[y][x] = "-1";
+                    break;
+                default:
+                    break;
+            } 
         } else {
             this.colorGrid[y][x] = this.selectedColor;
         }
@@ -97,45 +116,52 @@ class PixelCanvas {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw the color grid first
-        for (let y = 0; y < this.gridSize; y++) {
-            for (let x = 0; x < this.gridSize; x++) {
-                this.ctx.fillStyle = this.colorGrid[y][x];
-                this.ctx.fillRect(
-                    x * this.cellSize,
-                    y * this.cellSize,
-                    this.cellSize,
-                    this.cellSize
-                );
+        if (this.displayColorGrid) {
+            for (let y = 0; y < this.gridSize; y++) {
+                for (let x = 0; x < this.gridSize; x++) {
+                    this.ctx.fillStyle = this.colorGrid[y][x];
+                    this.ctx.fillRect(
+                        x * this.cellSize,
+                        y * this.cellSize,
+                        this.cellSize,
+                        this.cellSize
+                    );
 
-                // Draw grid lines
-                this.ctx.strokeStyle = '#e0e0e0';
-                this.ctx.lineWidth = 0.5;
-                this.ctx.strokeRect(
-                    x * this.cellSize,
-                    y * this.cellSize,
-                    this.cellSize,
-                    this.cellSize
-                );
+                    // Draw grid lines
+                    this.ctx.strokeStyle = '#e0e0e0';
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.strokeRect(
+                        x * this.cellSize,
+                        y * this.cellSize,
+                        this.cellSize,
+                        this.cellSize
+                    );
+                }
             }
         }
 
+        const users = {'-1':'rgba(251, 4, 4, 0.77)', '0':'rgba(218, 45, 229, 0.3)', '1':'rgba(45, 229, 106, 0.3)', '2':'rgba(97, 45, 229, 0.3)'}
         // Draw the owner grid on top if enabled
         if (this.displayOwnerGrid) {
             for (let y = 0; y < this.gridSize; y++) {
                 for (let x = 0; x < this.gridSize; x++) {
-                    if (this.ownerGrid[y][x]) {
-                        if (this.ownerGrid[y][x] === "0") {
-                            this.ctx.fillStyle = 'rgba(255, 0, 179, 0.3)';
-                        } else if (this.ownerGrid[y][x] === "-1") {
-                            this.ctx.fillStyle = 'rgba(251, 4, 4, 0.77)';
-                        }
-                        this.ctx.fillRect(
-                            x * this.cellSize,
-                            y * this.cellSize,
-                            this.cellSize,
-                            this.cellSize
-                        );
-                    }
+                    this.ctx.fillStyle = users[this.ownerGrid[x][y]];
+                    this.ctx.fillRect(
+                        y * this.cellSize,
+                        x * this.cellSize,
+                        this.cellSize,
+                        this.cellSize
+                    );
+
+                    // Draw grid lines
+                    this.ctx.strokeStyle = '#a0a0a0';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.strokeRect(
+                        x * this.cellSize,
+                        y * this.cellSize,
+                        this.cellSize,
+                        this.cellSize
+                    );
                 }
             }
         }
