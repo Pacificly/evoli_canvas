@@ -1,17 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const copyBtn = document.getElementById('copyBtn');
-    const canvasCode = document.getElementById('canvasCode');
+    const copyBuyBtn = document.getElementById('copyBuyBtn');
+    const copycolorBtn = document.getElementById('copyColorBtn');
+    const canvasBuyCode = document.getElementById('canvasBuyCode');
+    const canvasColorCode = document.getElementById('canvasColorCode');
     const pixelCanvas = document.getElementById('pixelCanvas');
 
     // Copy functionality
-    copyBtn.addEventListener('click', () => {
-        canvasCode.select();
+    copyBuyBtn.addEventListener('click', () => {
+        canvasBuyCode.select();
         document.execCommand('copy');
         
         // Optional: Provide visual feedback
-        copyBtn.textContent = '✓';
+        copyBuyBtn.textContent = '✓';
         setTimeout(() => {
-            copyBtn.textContent = '📋';
+            copyBuyBtn.textContent = '📋';
+        }, 1000);
+    });
+
+    copyColorBtn.addEventListener('click', () => {
+        canvasColorCode.select();
+        document.execCommand('copy');
+        
+        // Optional: Provide visual feedback
+        copyColorBtn.textContent = '✓';
+        setTimeout(() => {
+            copyColorBtn.textContent = '📋';
         }, 1000);
     });
 });

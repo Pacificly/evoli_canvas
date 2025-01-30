@@ -21,6 +21,7 @@
                 <p>• Cliquez sur les cases pour les acheter en mode Vue Propriétaire</p>
                 <p>• Alternez entre Vue Couleur et Vue Propriétaire en utilisant les boutons</p>
                 <p>• Copiez la commande du canevas en cliquant sur le bouton presse-papiers</p>
+                <p>• Naviguez dans la grille en utilisant les flèches du clavier et la molette de la souris</p>
             </div>            
             
             <div class="canvas-and-controls">
@@ -52,9 +53,17 @@
         </div>
         
         <div class="copy-section">
-            <button id="copyBtn">📋</button>
-            <input type="text" id="canvasCode" readonly>
-            <div>0 L€</div>
+            <div class="copy-container">
+                <h4>Achat :</h4>
+                <input type="text" id="canvasBuyCode">
+                <button class="copyBtn" id="copyBuyBtn">📋</button>
+                <div id="costBuyCommand">0 L€</div>
+            </div>
+            <div class="copy-container">
+                <h4>Couleur :</h4>
+                <input type="text" id="canvasColorCode">
+                <button class="copyBtn" id="copyColorBtn">📋</button>
+            </div>
         </div>
     </div>
     <script>

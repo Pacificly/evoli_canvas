@@ -1,11 +1,17 @@
 class PixelCanvas {
-    constructor(canvasId, gridSize = 40) {
+    constructor(canvasId, gridSize = 80, visibleGridSize = 40) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.gridSize = gridSize;
-        this.cellSize = this.canvas.width / gridSize;
-        this.canvasCode = null;
-        this.command = {"action":"color","plots":[]};
+        this.visibleGridSize = visibleGridSize;
+        this.cellSize = this.canvas.width / this.visibleGridSize;
+        this.canvasBuyCode = null;
+        this.canvasColorCode = null;
+        this.colorCommand = {"action":"color","plots":[]};
+        this.buyCommand = {"action":"buy_plots","plots":[]};
+        this.costText = document.getElementById('costBuyCommand');
+
+        this.position = { x: 0, y: 0 };
 
         // open color_grid.csv and owner_grid.csv to initialize the grids
         this.colorGrid = [];
@@ -23,7 +29,7 @@ class PixelCanvas {
                 this.ownerGrid = text.split('\n').map(row => row.split(','));
             });
         
-        this.displayColorGrid = true;
+        this.modeColorGrid = 1;
         this.displayOwnerGrid = false;
         this.selectedColor = '#FF0000';
 
@@ -40,22 +46,24 @@ class PixelCanvas {
 
             //update canvas code
             if (this.displayOwnerGrid) {
-                if (this.command.action === "buy_plots" && (this.ownerGrid[y][x]==="0" || this.ownerGrid[y][x]==="-1")) {
+                if ((this.ownerGrid[y][x]==="0" || this.ownerGrid[y][x]==="-1")) {
                     //if the plot was already in the list, remove it
-                    const index = this.command.plots.findIndex(plot => plot[0] === y && plot[1] === x);
+                    const index = this.buyCommand.plots.findIndex(plot => plot[0] === y && plot[1] === x);
                     if (index > -1) {
-                        this.command.plots.splice(index, 1);
+                        this.buyCommand.plots.splice(index, 1);
                     } else {
-                        this.command.plots.push([y, x]);
+                        this.buyCommand.plots.push([y, x]);
                     }
+                    //1 L€ per 16 plots (rounded up)
+                    this.costText.innerHTML = Math.ceil(this.buyCommand.plots.length/16) + " L€";
+                    this.canvasBuyCode.value = JSON.stringify(this.buyCommand);
                 }
             } else {
-                if (this.command.action === "color") {
-                    this.command.plots.push([y, x, this.selectedColor]);
-                }
+                this.colorCommand.plots.push([y, x, this.selectedColor]);
+                this.canvasColorCode.value = JSON.stringify(this.colorCommand);
             }
-            this.canvasCode.value = JSON.stringify(this.command);
         });
+
 
         this.canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -76,19 +84,46 @@ class PixelCanvas {
 
         // Toggle grid display buttons
         document.getElementById('colorViewBtn').addEventListener('click', () => {
-            this.displayColorGrid = !this.displayColorGrid;
-            if (this.displayColorGrid) {
-                this.command = {"action":"color","plots":[]};
-                this.canvasCode.value = JSON.stringify(this.command);
-            }
+            this.modeColorGrid = (this.modeColorGrid + 1) % 3;
             this.drawGrid();
         });
 
         document.getElementById('ownerViewBtn').addEventListener('click', () => {
             this.displayOwnerGrid = !this.displayOwnerGrid;
-            if (this.displayOwnerGrid) {
-                this.command = {"action":"buy_plots","plots":[]};
-                this.canvasCode.value = JSON.stringify(this.command);
+            this.drawGrid();
+        });
+
+        // mouse wheel to zoom in and out, increasing or decreasing the visible grid size
+        this.canvas.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            if (event.deltaY < 0) {
+                this.visibleGridSize = Math.min(this.gridSize, this.visibleGridSize + 2);
+            } else {
+                this.visibleGridSize = Math.max(2, this.visibleGridSize - 2);
+            }
+            this.position.x = Math.min(this.gridSize - this.visibleGridSize, this.position.x);
+            this.position.y = Math.min(this.gridSize - this.visibleGridSize, this.position.y);
+            this.cellSize = this.canvas.width / this.visibleGridSize;
+            this.drawGrid();
+        });
+
+        // arrow keys to move the visible grid
+        window.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    this.position.y = Math.max(0, this.position.y - 1);
+                    break;
+                case 'ArrowDown':
+                    this.position.y = Math.min(this.gridSize - this.visibleGridSize, this.position.y + 1);
+                    break;
+                case 'ArrowLeft':
+                    this.position.x = Math.max(0, this.position.x - 1);
+                    break;
+                case 'ArrowRight':
+                    this.position.x = Math.min(this.gridSize - this.visibleGridSize, this.position.x + 1);
+                    break;
+                default:
+                    return;
             }
             this.drawGrid();
         });
@@ -114,70 +149,107 @@ class PixelCanvas {
 
     drawGrid() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    
+        const users = {
+            '-1': 'rgb(251, 4, 4)',
+            '0': 'rgb(218, 45, 229)',
+            '1': 'rgb(45, 229, 106)',
+            '2': 'rgb(97, 45, 229)'
+        };
 
-        // Draw the color grid first
-        if (this.displayColorGrid) {
-            for (let y = 0; y < this.gridSize; y++) {
-                for (let x = 0; x < this.gridSize; x++) {
-                    this.ctx.fillStyle = this.colorGrid[y][x];
-                    this.ctx.fillRect(
-                        x * this.cellSize,
-                        y * this.cellSize,
-                        this.cellSize,
-                        this.cellSize
-                    );
-
-                    // Draw grid lines
-                    this.ctx.strokeStyle = '#e0e0e0';
-                    this.ctx.lineWidth = 0.5;
-                    this.ctx.strokeRect(
-                        x * this.cellSize,
-                        y * this.cellSize,
-                        this.cellSize,
-                        this.cellSize
-                    );
+        const alpha = (color) => {
+            return color.replace(')', ', 0.3)').replace('rgb', 'rgba');
+        };
+    
+        const drawColorGrid = () => {
+            if (this.modeColorGrid > 0) {
+                for (let y = 0; y < this.visibleGridSize; y++) {
+                    for (let x = 0; x < this.visibleGridSize; x++) {
+                        const xp = x + this.position.x;
+                        const yp = y + this.position.y;
+                        this.ctx.fillStyle = this.colorGrid[yp][xp];
+                        this.ctx.fillRect(
+                            x * this.cellSize,
+                            y * this.cellSize,
+                            this.cellSize,
+                            this.cellSize
+                        );
+    
+                        // Draw grid lines
+                        if (this.modeColorGrid === 2) {
+                            this.ctx.strokeStyle = users[this.ownerGrid[yp][xp]];
+                            this.ctx.lineWidth = 2;
+                        } else {
+                            this.ctx.strokeStyle = '#e0e0e0';
+                            this.ctx.lineWidth = 0.5;
+                        }
+                        this.ctx.strokeRect(
+                            x * this.cellSize,
+                            y * this.cellSize,
+                            this.cellSize,
+                            this.cellSize
+                        );
+                    }
                 }
             }
+        };
+    
+        const drawOwnerGrid = () => {
+            if (this.displayOwnerGrid) {
+                for (let y = 0; y < this.visibleGridSize; y++) {
+                    for (let x = 0; x < this.visibleGridSize; x++) {
+                        const xp = x + this.position.x;
+                        const yp = y + this.position.y;
+                        if (this.ownerGrid[yp][xp]==-1) {
+                            this.ctx.fillStyle = "rgba(251, 4, 4, 0.77)";
+                        } else {
+                            this.ctx.fillStyle = alpha(users[this.ownerGrid[yp][xp]]);
+                        }
+                        console.log(users[this.ownerGrid[yp][xp]]);
+                        this.ctx.fillRect(
+                            x * this.cellSize,
+                            y * this.cellSize,
+                            this.cellSize,
+                            this.cellSize
+                        );
+    
+                        // Draw grid lines
+                        this.ctx.strokeStyle = '#a0a0a0';
+                        this.ctx.lineWidth = 1;
+                        this.ctx.strokeRect(
+                            x * this.cellSize,
+                            y * this.cellSize,
+                            this.cellSize,
+                            this.cellSize
+                        );
+                    }
+                }
+            }
+        };
+    
+        // Determine drawing order
+        if (this.modeColorGrid >0) {
+            drawColorGrid();
         }
-
-        const users = {'-1':'rgba(251, 4, 4, 0.77)', '0':'rgba(218, 45, 229, 0.3)', '1':'rgba(45, 229, 106, 0.3)', '2':'rgba(97, 45, 229, 0.3)'}
-        // Draw the owner grid on top if enabled
         if (this.displayOwnerGrid) {
-            for (let y = 0; y < this.gridSize; y++) {
-                for (let x = 0; x < this.gridSize; x++) {
-                    this.ctx.fillStyle = users[this.ownerGrid[x][y]];
-                    this.ctx.fillRect(
-                        y * this.cellSize,
-                        x * this.cellSize,
-                        this.cellSize,
-                        this.cellSize
-                    );
-
-                    // Draw grid lines
-                    this.ctx.strokeStyle = '#a0a0a0';
-                    this.ctx.lineWidth = 1;
-                    this.ctx.strokeRect(
-                        x * this.cellSize,
-                        y * this.cellSize,
-                        this.cellSize,
-                        this.cellSize
-                    );
-                }
-            }
+            drawOwnerGrid();
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const pixelCanvas = new PixelCanvas('pixelCanvas');
-    pixelCanvas.canvasCode = document.getElementById('canvasCode');
+    pixelCanvas.canvasBuyCode = document.getElementById('canvasBuyCode');
+    pixelCanvas.canvasColorCode = document.getElementById('canvasColorCode');
+    pixelCanvas.canvasBuyCode.value = JSON.stringify(pixelCanvas.buyCommand);
+    pixelCanvas.canvasColorCode.value = JSON.stringify(pixelCanvas.colorCommand);
 
     // Ensure the appropriate sections are toggled
     document.getElementById('colorViewBtn').addEventListener('click', () => {
-        if (!pixelCanvas.displayColorGrid) {
-            document.getElementById('colorPalette').classList.add('hidden');
-        } else {
+        if (pixelCanvas.modeColorGrid > 0) {
             document.getElementById('colorPalette').classList.remove('hidden');
+        } else {
+            document.getElementById('colorPalette').classList.add('hidden');
         }
     });
 
@@ -192,4 +264,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('coloris:pick', event => {
         pixelCanvas.selectedColor = event.detail.color;
       });
+    
+    //when canvasColorCode or canvasBuyCode is changed manually, check if it is a valid command and update the grids
+    pixelCanvas.canvasColorCode.addEventListener('change', () => {
+        try {
+            pixelCanvas.colorCommand = JSON.parse(pixelCanvas.canvasColorCode.value);
+            pixelCanvas.colorCommand.plots.forEach(plot => {
+                this.colorGrid[plot[0]][plot[1]] = plot[2];
+            });
+            pixelCanvas.drawGrid();
+        } catch (error) {
+            console.error('Invalid color command:', error);
+        }
+    });
+
+    pixelCanvas.canvasBuyCode.addEventListener('change', () => {
+        try {
+            pixelCanvas.buyCommand = JSON.parse(pixelCanvas.canvasBuyCode.value);
+            pixelCanvas.buyCommand.plots.forEach(plot => {
+                pixelCanvas.ownerGrid[plot[0]][plot[1]] = "-1";
+            });
+            pixelCanvas.drawGrid();
+        } catch (error) {
+            console.error('Invalid buy command:', error);
+        }
+    });
 });

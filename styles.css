@@ -53,7 +53,7 @@ h1 {
 
 .canvas-and-controls {
     position: absolute;
-    top: 50%;
+    top: 47%;
     left: 50%;
     transform: translate(-50%, -45%);
     display: flex;
@@ -149,21 +149,64 @@ button:hover {
 
 .copy-section {
     position: absolute;
-    bottom: 50px;
+    top: 90%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    background: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 20%;
+    margin: auto;
 }
 
-#copyBtn {
-    background: none;
+.copy-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: white;
+    padding: 0.7rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+h4 {
+    margin: 0;
+    font-size: 0.5rem;
+    color: #333;
+}
+
+input {
+    flex: 1;
+    padding: 0.25rem;
+    border: 0.5px solid #ccc;
+    border-radius: 2.5px;
+    font-size: 0.5rem;
+    text-align: center;
+    background: #eef2f7;
+}
+
+.copyBtn {
+    background: #007bff;
     border: none;
-    font-size: 24px;
+    color: white;
+    padding: 0.25rem 0.375rem;
+    border-radius: 2.5px;
     cursor: pointer;
-    padding: 0px;
+    font-size: 0.6rem;
+}
+
+.copyBtn:hover {
+    background: #0056b3;
+}
+
+#costBuyCommand {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 0.55rem;
 }
 
 #canvasCode {
