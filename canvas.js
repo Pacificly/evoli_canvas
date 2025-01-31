@@ -73,7 +73,7 @@ class PixelCanvas {
                     const b = imageData[index + 2];
                     const a = imageData[index + 3];
 
-                    row.push(`rgba(${r},${g},${b},${a / 255})`); // Store as RGBA color string
+                    row.push(`rgb(${r},${g},${b})`); // Store as RGBA color string
                 }
                 this.ownerGrid.push(row);
             }
@@ -185,12 +185,13 @@ class PixelCanvas {
 
     colorCell(x, y) {
         if (this.displayOwnerGrid) {
+            console.log(this.ownerGrid[y][x]);
             switch (this.ownerGrid[y][x]) {
-                case "-1":
-                    this.ownerGrid[y][x] = "0";
+                case "rgba(255,0,0,0.7)":
+                    this.ownerGrid[y][x] = "rgb(218,45,229)";
                     break;
-                case "0":
-                    this.ownerGrid[y][x] = "-1";
+                case "rgb(218,45,229)":
+                    this.ownerGrid[y][x] = "rgba(255,0,0,0.7)";
                     break;
                 default:
                     break;
@@ -249,7 +250,11 @@ class PixelCanvas {
                     for (let x = 0; x < this.visibleGridSize; x++) {
                         const xp = x + this.position.x;
                         const yp = y + this.position.y;
-                        this.ctx.fillStyle = this.ownerGrid[yp][xp];
+                        if (this.ownerGrid[yp][xp] === 'rgba(255,0,0,0.7)') {
+                            this.ctx.fillStyle = this.ownerGrid[yp][xp];
+                        } else {
+                            this.ctx.fillStyle = alpha(this.ownerGrid[yp][xp]);
+                        }
                         this.ctx.fillRect(
                             x * this.cellSize,
                             y * this.cellSize,
