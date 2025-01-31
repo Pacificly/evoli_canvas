@@ -129,7 +129,7 @@ h1 {
     transition: transform 0.2s ease;
 }
 
-.owner-list li:hover {
+.owner-list li.clicked {
     transform: translateX(5px);
 }
 
@@ -146,6 +146,41 @@ button {
 button:hover {
     background-color: #45a049;
 }
+
+select {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    appearance: none; /* Removes default styling */
+    -webkit-appearance: none; /* Safari */
+    -moz-appearance: none; /* Firefox */
+}
+
+/* Optional: Add a dropdown arrow */
+select::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Hover effect */
+select:hover {
+    background-color: #45a049;
+}
+
+/* Focus effect */
+select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
 
 .copy-section {
     position: absolute;

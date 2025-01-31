@@ -16,18 +16,24 @@
         
         <div class="main-content">
             <div id="helpSection" class="help-section">
-                <h2>Comment utiliser le canevas d'Evoli</h2>
+                <h2>Comment utiliser la Loultoile</h2>
                 <p>• Cliquez sur les cases pour les colorier en mode Vue Couleur</p>
                 <p>• Cliquez sur les cases pour les acheter en mode Vue Propriétaire</p>
-                <p>• Alternez entre Vue Couleur et Vue Propriétaire en utilisant les boutons</p>
+                <p>• Alternez entre les différents modes de vue en utilisant le menu déroulant</p>
                 <p>• Copiez la commande du canevas en cliquant sur le bouton presse-papiers</p>
                 <p>• Naviguez dans la grille en utilisant les flèches du clavier et la molette de la souris</p>
             </div>            
             
             <div class="canvas-and-controls">
                 <div class="controls">
-                    <button id="colorViewBtn">Color View</button>
-                    <button id="ownerViewBtn">Owner View</button>
+                    <button id="colorViewBtn" hidden>Color View</button>
+                    <button id="ownerViewBtn" hidden>Owner View</button>
+                    <select id="viewSelect">
+                        <option value="1">1 : Couleurs</option>
+                        <option value="2">2 : Propriétés</option>
+                        <option value="3">3 : Couleurs sur propriété</option>
+                        <option value="4">4 : Propriétés sur couleur </option>
+                    </select>
                 </div>
                 
                 <div class="canvas-container">
@@ -37,16 +43,16 @@
             
             <div class="sidebar">
                 <div class="color-palette" id="colorPalette">
-                    <h3>Color Selector :</h3>
+                    <h3>Sélection Couleur :</h3>
                     <input id="colorisWidget" type="text" data-coloris></input>
                 </div>
                 
-                <div id="ownerList" class="owner-list hidden">
-                    <h3>Canvas Owners :</h3>
+                <div id="ownerList" class="owner-list">
+                    <h3>Artistes :</h3>
                     <ul>
-                        <li style="color: rgb(218, 45, 229);">Evoli Mignon</li>
-                        <li style="color: rgb(45, 229, 106);">Métamorph gentil</li>
-                        <li style="color: rgb(97, 45, 229);">Spectrum spectral</li>
+                        <li style="color: rgb(218,45,229);">Evoli Mignon</li>
+                        <li style="color: rgb(45,229,106);">Métamorph gentil</li>
+                        <li style="color: rgb(97,45,229);">Spectrum spectral</li>
                     </ul>
                 </div>
             </div>
