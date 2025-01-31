@@ -1,5 +1,5 @@
 class PixelCanvas {
-    constructor(canvasId, gridSize = 80, visibleGridSize = 40) {
+    constructor(canvasId, gridSize = 80, visibleGridSize = 80) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.gridSize = gridSize;
@@ -16,18 +16,72 @@ class PixelCanvas {
         // open color_grid.csv and owner_grid.csv to initialize the grids
         this.colorGrid = [];
         this.ownerGrid = [];
-        fetch('color_grid.csv')
-            .then(response => response.text())
-            .then(text => {
-                this.colorGrid = text.split('\n').map(row => row.split(','));
-                this.drawGrid();
-                console.log(this.colorGrid);
-            });
-        fetch('owner_grid.csv')
-            .then(response => response.text())
-            .then(text => {
-                this.ownerGrid = text.split('\n').map(row => row.split(','));
-            });
+        
+        const img = new Image();
+        img.src = 'color_grid.png'; // Path to your PNG file
+        img.crossOrigin = 'Anonymous'; // Ensures cross-origin compatibility if needed
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
+
+            for (let y = 0; y < img.height; y++) {
+                const row = [];
+                for (let x = 0; x < img.width; x++) {
+                    const index = (y * img.width + x) * 4;
+                    const r = imageData[index];
+                    const g = imageData[index + 1];
+                    const b = imageData[index + 2];
+                    const a = imageData[index + 3];
+
+                    row.push(`rgba(${r},${g},${b},${a / 255})`); // Store as RGBA color string
+                }
+                this.colorGrid.push(row);
+            }
+
+            this.drawGrid();
+            console.log(this.colorGrid);
+        };
+
+        //same for owner_grid
+        const img2 = new Image();
+        img2.src = 'owner_grid.png'; // Path to your PNG file
+        img2.crossOrigin = 'Anonymous'; // Ensures cross-origin compatibility if needed
+
+        img2.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = img2.width;
+            canvas.height = img2.height;
+            ctx.drawImage(img2, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, img2.width, img2.height).data;
+            
+            for (let y = 0; y < img2.height; y++) {
+                const row = [];
+                for (let x = 0; x < img2.width; x++) {
+                    const index = (y * img2.width + x) * 4;
+                    const r = imageData[index];
+                    const g = imageData[index + 1];
+                    const b = imageData[index + 2];
+                    const a = imageData[index + 3];
+
+                    row.push(`rgba(${r},${g},${b},${a / 255})`); // Store as RGBA color string
+                }
+                this.ownerGrid.push(row);
+            }
+
+            this.drawGrid();
+            console.log(this.ownerGrid);
+        };
+
         
         this.modeColorGrid = 1;
         this.displayOwnerGrid = false;
@@ -149,13 +203,6 @@ class PixelCanvas {
 
     drawGrid() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-        const users = {
-            '-1': 'rgb(251, 4, 4)',
-            '0': 'rgb(218, 45, 229)',
-            '1': 'rgb(45, 229, 106)',
-            '2': 'rgb(97, 45, 229)'
-        };
 
         const alpha = (color) => {
             return color.replace(')', ', 0.3)').replace('rgb', 'rgba');
@@ -175,20 +222,22 @@ class PixelCanvas {
                             this.cellSize
                         );
     
-                        // Draw grid lines
-                        if (this.modeColorGrid === 2) {
-                            this.ctx.strokeStyle = users[this.ownerGrid[yp][xp]];
-                            this.ctx.lineWidth = 2;
-                        } else {
-                            this.ctx.strokeStyle = '#e0e0e0';
-                            this.ctx.lineWidth = 0.5;
+                        // Draw grid lines if visible grid size is less than 60
+                        if (this.visibleGridSize < 60) {
+                            if (this.modeColorGrid === 2) {
+                                this.ctx.strokeStyle = this.ownerGrid[yp][xp];
+                                this.ctx.lineWidth = 2;
+                            } else {
+                                this.ctx.strokeStyle = '#e0e0e0';
+                                this.ctx.lineWidth = 0.5;
+                            }
+                            this.ctx.strokeRect(
+                                x * this.cellSize,
+                                y * this.cellSize,
+                                this.cellSize,
+                                this.cellSize
+                            );
                         }
-                        this.ctx.strokeRect(
-                            x * this.cellSize,
-                            y * this.cellSize,
-                            this.cellSize,
-                            this.cellSize
-                        );
                     }
                 }
             }
@@ -200,12 +249,7 @@ class PixelCanvas {
                     for (let x = 0; x < this.visibleGridSize; x++) {
                         const xp = x + this.position.x;
                         const yp = y + this.position.y;
-                        if (this.ownerGrid[yp][xp]==-1) {
-                            this.ctx.fillStyle = "rgba(251, 4, 4, 0.77)";
-                        } else {
-                            this.ctx.fillStyle = alpha(users[this.ownerGrid[yp][xp]]);
-                        }
-                        console.log(users[this.ownerGrid[yp][xp]]);
+                        this.ctx.fillStyle = this.ownerGrid[yp][xp];
                         this.ctx.fillRect(
                             x * this.cellSize,
                             y * this.cellSize,
@@ -213,15 +257,17 @@ class PixelCanvas {
                             this.cellSize
                         );
     
-                        // Draw grid lines
-                        this.ctx.strokeStyle = '#a0a0a0';
-                        this.ctx.lineWidth = 1;
-                        this.ctx.strokeRect(
-                            x * this.cellSize,
-                            y * this.cellSize,
-                            this.cellSize,
-                            this.cellSize
-                        );
+                        // Draw grid lines if visible grid size is less than 60
+                        if (this.visibleGridSize < 60) {
+                            this.ctx.strokeStyle = '#a0a0a0';
+                            this.ctx.lineWidth = 1;
+                            this.ctx.strokeRect(
+                                x * this.cellSize,
+                                y * this.cellSize,
+                                this.cellSize,
+                                this.cellSize
+                            );
+                        }
                     }
                 }
             }
